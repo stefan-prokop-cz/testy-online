@@ -1,0 +1,283 @@
+{% extends "teststestBundle:Default:index.html.twig" %}
+
+{% block title %}
+    {% if username is defined %}
+        {{username.name | capitalize}} {{username.surname | capitalize}} | Nový test
+    {% endif %}
+{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{{ asset('web/bundles/teststest/css/parsley.css') }}">
+    <style>
+        body {
+            background: #ffeeb7;
+            margin-bottom: 60px;
+        }
+        .table {
+            max-width: 640px;
+        }
+        .center-screen {
+            margin: auto auto;
+        }
+        #nZT {
+            text-align: center;
+        }
+        .question_form {
+            padding-left: 15px;
+        }
+        .question_form .af  {
+            width: 50%;
+        }
+        .question_form .qf {
+            width: 75%;
+        }
+        .options {
+            margin-right: 30px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="{{ path('teststest_homepage') }}">TESTY ONLINE</a>
+            </div>
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <form class="navbar-form navbar-right">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                        <span class="glyphicon glyphicon-user"></span> 
+                        {% if username is defined %}
+                            {{username.name | capitalize}} {{username.surname | capitalize}}
+                        {% endif %}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="{{ path('teststest_homepage') }}">Domů <span class="pull-right glyphicon glyphicon-home"></span></a></li>
+                        <li><a href="{{ path('teststest_newTest') }}">Nový test <span class="pull-right glyphicon glyphicon-list-alt"></span></a></li>
+                        <li><a href="{{ path('teststest_setting') }}">Nastavení <span class="pull-right glyphicon glyphicon-wrench"></span></a></li>
+                        <li class="divider"></li>
+                        <li><a href="{{ asset('web/bundles/teststest/help/ucitel-napoveda.pdf') }}" target="_blank">Nápověda <span class="pull-right glyphicon glyphicon-question-sign"></span></a></li>
+                        <li><a href="{{ path('teststest_logout') }}">Odhlásit se <span class="pull-right glyphicon glyphicon-log-out"></span></a></li>
+                    </ul>
+                </form>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <div class="create_screen pull-left">
+            {% if session is defined %}
+                {{session | raw}}
+            {% else %}
+            <p>Náhled testu není k dispozici.</p>
+            {% endif %}
+        </div>
+        {% if error is defined %}
+            <div class="alert alert-danger alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <strong>Chyba - Nový test</strong><br /> {{ error }}
+            </div>
+        {% endif %}
+        {% if message is defined %}
+            <div class="alert alert-success alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <strong>Nový test</strong><br /> {{ message }}
+            </div>
+        {% endif %}
+        <div class="list-group pull-right">
+            <center><h4>Možnosti</h4></center>
+            <a href="#" class="newTestClick list-group-item" data-toggle="tooltip" data-placement="left" title="Klikněte pro založení nového testu">+ Nový test</a>
+            {% if testId is defined %}
+                <a href="#" class="newQuestionClick list-group-item" data-toggle="tooltip" data-placement="left" title="1 otázka + 3 možnosti na výběr">+ Nová otázka - 3 možnosti</a>
+                <a href="#" class="newQuestAnswClick list-group-item" data-toggle="tooltip" data-placement="left" title="1 otázka - žák odpoví pomocí textového pole">+ Nová otázka - odpovídání</a>
+                <a href="#" class="showView list-group-item" data-toggle="tooltip" data-placement="left" title="Ukáže náhled testu"><span class="glyphicon glyphicon-eye-open"></span> Náhled testu</a>
+                <a href="{{ path('teststest_homepage') }}" class="testComplete list-group-item" data-toggle="tooltip" data-placement="left" title="Stiskněte pro dokončení testu"><span class="glyphicon glyphicon-ok"></span> Dokončit</a>
+            {% endif %}
+        </div>
+        <div class="modal fade" id="modalNewTest">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h3 class="modal-title">Založit nový test</h3>
+                    </div>
+                    <div class="modal-body">
+                        <form id="newTest" action="{{ path('teststest_newTestSave') }}" method="post" data-parsley-validate>
+                            <input type="text" autocomplete="off" name="testName" id="testName" class="form-control" placeholder="Název" data-toggle="tooltip" data-placement="right" title="Zadejte název testu" data-parsley-trigger="change" required>
+                            <input type="email" autocomplete="off" name="testEmail" id="testEmail" class="form-control" placeholder="Email" data-toggle="tooltip" data-placement="right" title="Zadejte email, na který vám budou zaslány výsledky" data-parsley-trigger="change" required>
+                            <input type="text" autocomplete="off" name="testDescription" id="testDescription" class="form-control" placeholder="Popis" data-toggle="tooltip" data-placement="right" title="Zadejte popis testu" data-parsley-trigger="change" required>
+                            <select name="testTime" id="testTime" class="form-control" data-toggle="tooltip" data-placement="right" title="Zadejte časové omezení testu (v minutách)" data-parsley-trigger="change" required>
+                                <option value="0">Test není časově omezen</option>
+                                <option value="5">5 min</option>
+                                <option value="10">10 min</option>
+                                <option value="15">15 min</option>
+                                <option value="20">20 min</option>
+                                <option value="25">25 min</option>
+                                <option value="30">30 min</option>
+                                <option value="35">35 min</option>
+                                <option value="40">40 min</option>
+                                <option value="45">45 min</option>
+                            </select>
+                            <input type="text" autocomplete="off" name="testClass" id="testClass" class="form-control" placeholder="Třída" data-toggle="tooltip" data-placement="right" title="Zadejte, pro kterou třídu je test určen" data-parsley-trigger="change" required>
+                            <label class="checkbox"><input type="checkbox" name="test_code" id="test_code" data-toggle="tooltip" data-placement="right" title="Vygeneruje přístupový kód" data-parsley-trigger="change" required>Generovat kód</label>
+                            <input type="hidden" name="testCode" id="testCode" value="">
+                            <input type="submit" id="testConfirm" name="testConfirm" class="btn btn-success" value="Vytvořit test">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="modalNewQuestion">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h3 class="modal-title">Vytvořit novou otázku</h3>
+                    </div>
+                    <div class="modal-body">
+                        <form id="newTest" action="{{ path('teststest_newQuestionSave') }}" method="post" data-parsley-validate>
+                            <input type="text" autocomplete="off" name="questionText" class="questionText form-control" placeholder="Text otázky" data-toggle="tooltip" data-placement="right" title="Zadejte text otázky" data-parsley-trigger="change" required>
+                            <select name="scale" class="scale form-control" data-toggle="tooltip" data-placement="right" title="Zadejte váhu této otázky" data-parsley-trigger="change" required>
+                                <option value="10">10 - nejvyšší váha</option>
+                                <option value="9">9</option>
+                                <option value="8">8</option>
+                                <option value="7">7</option>
+                                <option value="6">6</option>
+                                <option value="5">5</option>
+                                <option value="4">4</option>
+                                <option value="3">3</option>
+                                <option value="2">2</option>
+                                <option value="1">1 - nejnižší váha</option>
+                            </select>
+                            <div class="radio">
+                                <input type="radio" class="tAnswer" name="tAnswer" value="1" data-toggle="tooltip" data-placement="left" title="Zaškrtněte v případě, že je tato odpověď správná" data-parsley-trigger="change" required>
+                                <input type="text" autocomplete="off" name="answer1" class="answer form-control" placeholder="Text odpovědi" data-toggle="tooltip" data-placement="right" title="Zadejte text odpovědi" data-parsley-trigger="change" required>
+                            </div>
+                            <div class="radio">
+                                <input type="radio" class="tAnswer" name="tAnswer" value="2" data-toggle="tooltip" data-placement="left" title="Zaškrtněte v případě, že je tato odpověď správná" data-parsley-trigger="change" required>
+                                <input type="text" autocomplete="off" name="answer2" class="answer form-control" placeholder="Text odpovědi" data-toggle="tooltip" data-placement="right" title="Zadejte text odpovědi" data-parsley-trigger="change" required>
+                            </div>
+                            <div class="radio">
+                                <input type="radio" class="tAnswer" name="tAnswer" value="3" data-toggle="tooltip" data-placement="left" title="Zaškrtněte v případě, že je tato odpověď správná" data-parsley-trigger="change" required>
+                                <input type="text" autocomplete="off" name="answer3" class="answer form-control" placeholder="Text odpovědi" data-toggle="tooltip" data-placement="right" title="Zadejte text odpovědi" data-parsley-trigger="change" required>
+                            </div>
+                            <input type="submit" id="questionConfirm" name="questionConfirm" class="btn btn-success" value="Vytvořit otázku">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="modalNewQuestAnsw">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h3 class="modal-title">Vytvořit novou otázku</h3>
+                    </div>
+                    <div class="modal-body">
+                        <form id="newTest" action="{{ path('teststest_newQuestAnswSave') }}" method="post" data-parsley-validate>
+                            <span class="text-danger">* Slouží pro zadávání číselných hodnot</span>
+                            <input type="text" autocomplete="off" name="questionText" class="questionText form-control" placeholder="Text otázky" data-toggle="tooltip" data-placement="right" title="Zadejte text otázky" data-parsley-trigger="change" required>
+                            <select name="scale" class="scale form-control" data-toggle="tooltip" data-placement="right" title="Zadejte váhu této otázky" data-parsley-trigger="change" required>
+                                <option value="10">10 - nejvyšší váha</option>
+                                <option value="9">9</option>
+                                <option value="8">8</option>
+                                <option value="7">7</option>
+                                <option value="6">6</option>
+                                <option value="5">5</option>
+                                <option value="4">4</option>
+                                <option value="3">3</option>
+                                <option value="2">2</option>
+                                <option value="1">1 - nejnižší váha</option>
+                            </select>
+                            <input type="text" autocomplete="off" name="questionAnswer" id="questionAnswer" class="form-control" placeholder="Text odpovědi" data-toggle="tooltip" data-placement="right" title="Zadejte text odpovědi (číslo)" data-parsley-type="number" data-parsley-trigger="change" required>
+                            <input type="submit" id="questionConfirm" name="questionConfirm" class="btn btn-success" value="Vytvořit otázku">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript" src="{{ asset('web/bundles/teststest/js/parsley.js') }}"></script>
+    <script>
+        $(document).ready(function () {
+            $(".alert").alert();
+            $("#testName").focus(function () {
+                $("#testName").tooltip('show');
+            });
+            $("#testEmail").focus(function () {
+                $("#testEmail").tooltip('show');
+            });
+            $("#testDescription").focus(function () {
+                $("#testDescription").tooltip('show');
+            });
+            $("#testTime").focus(function () {
+                $("#testTime").tooltip('show');
+            });
+            $("#testClass").focus(function () {
+                $("#testClass").tooltip('show');
+            });
+            $('.scale').focus(function () {
+                $('.scale').tooltip();
+            });
+            $(".newTestClick").hover(function () {
+                $(".newTestClick").tooltip('show');
+            });
+            $('.newQuestionClick').hover(function () {
+                $('.newQuestionClick').tooltip();
+            });
+            $('.showView').hover(function () {
+                $('.showView').tooltip();
+            });
+            $('.newQuestAnswClick').hover(function () {
+                $('.newQuestAnswClick').tooltip();
+            });
+            $('.newTestClick').click(function () {
+                $('#modalNewTest').modal();
+            });
+            $('.newQuestionClick').click(function () {
+                $('#modalNewQuestion').modal();
+            });
+            $('.newQuestAnswClick').click(function () {
+                $('#modalNewQuestAnsw').modal();
+            });
+            $('#testCode').focus(function () {
+                $('#testCode').tooltip('show');
+            });
+            $('.questionText').focus(function () {
+                $('.questionText').tooltip();
+            });
+            $('.tAnswer').focus(function () {
+                $('.tAnswer').tooltip();
+            });
+            $('.answer').focus(function () {
+                $('.answer').tooltip();
+            });
+            $('#questionAnswer').focus(function () {
+                $('#questionAnswer').tooltip();
+            });
+            $('#test_code').change(function () {
+                $('#test_code').prop('disabled', true);
+                var testName = $("#testName").val();
+                var replace = testName.replace(/ /gi, '');
+                var randCode = (Math.floor(Math.random() * 1000) + "-" + replace + "-" + Math.floor(Math.random() * 100) + "-" + $("#testClass").val());
+                var code = randCode.toLowerCase();
+                $('#testCode').val(code);
+            });
+            $('.showView').click(function () {
+                $(".alert").css('display', 'none');
+                $(".create_screen").toggle();
+            });
+        });
+    </script>
+{% endblock %}

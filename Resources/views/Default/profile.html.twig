@@ -1,0 +1,225 @@
+{% extends "teststestBundle:Default:index.html.twig" %}
+
+{% block title %}
+{% if username is defined %}
+{{username.name | capitalize}} {{username.surname | capitalize}} | Profil
+{% endif %}
+{% if name is defined %}
+{{name | capitalize}} {{surname | capitalize}} | Profil
+{% endif %}
+{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ asset('web/bundles/teststest/css/parsley.css') }}">
+<style>
+    body {
+        background: #ffeeb7;
+    }
+    .table {
+        max-width: 640px;
+    }
+    .list-group {
+        padding: 5px;
+    }
+    .gradeSystem {
+        max-width: 170px;
+    }
+    .table-grade {
+        width: 500px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{{ path('teststest_homepage') }}">TESTY ONLINE</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <form class="navbar-form navbar-right">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                    <span class="glyphicon glyphicon-user"></span> 
+                    {% if username is defined %}
+                    {{username.name | capitalize}} {{username.surname | capitalize}}
+                    {% endif %}
+                    {% if name is defined %}
+                    {{name | capitalize}} {{surname | capitalize}}
+                    {% endif %}
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="{{ path('teststest_homepage') }}">Domů <span class="pull-right glyphicon glyphicon-home"></span></a></li>
+                    <li><a href="{{ path('teststest_newTest') }}">Nový test <span class="pull-right glyphicon glyphicon-list-alt"></span></a></li>
+                    <li><a href="{{ path('teststest_setting') }}">Nastavení <span class="pull-right glyphicon glyphicon-wrench"></span></a></li>
+                    <li class="divider"></li>
+                    <li><a href="{{ asset('web/bundles/teststest/help/ucitel-napoveda.pdf') }}" target="_blank">Nápověda <span class="pull-right glyphicon glyphicon-question-sign"></span></a></li>
+                    <li><a href="{{ path('teststest_logout') }}">Odhlásit se <span class="pull-right glyphicon glyphicon-log-out"></span></a></li>
+                </ul>
+            </form>
+        </div>
+    </div>
+</nav>
+<div class="container-fluid">
+    <div class="list-group pull-left">
+        <center><h4>Moje testy</h4></center>
+        <div class="btn-group-vertical">
+        {% if tests is defined %}
+        {% if tests != null %}
+        {% for test in tests %}
+            <div class="btn-group">
+                <button id="{{test.id}}" class="btn btn-default dropdown-toggle dropdown" data-toggle="dropdown">{{test.name}} <span class="caret"></span></button>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="{{test.id}}">
+                    <li>
+                        <a href="{{ path('teststest_preview', {'testCode': test.code})}}" class="preview"><span class="glyphicon glyphicon-eye-open"></span> Náhled a úpravy</a>
+                    </li>
+                    <li>
+                        <a href="#" class="grade"><span class="glyphicon glyphicon-sort-by-attributes"></span> Nastavit převod na známku</a>
+                    </li>
+                    <li>
+                        <a href="#" class="delete"><span class="glyphicon glyphicon-trash"></span> Odstranit</a>
+                    </li>
+                </ul>
+            </div>
+        {% endfor %}
+        {% endif %}
+        {% if tests == null %}
+            <div class="alert alert-danger">
+                Zatím nebyl vytvořen žádný test
+            </div>
+        {% endif %}
+        {% endif %}
+        </div>
+    </div>
+    <center>
+        <h4>Přístup k testům</h4>
+        <table class="table">
+            <tr>
+                <th class="success">Název testu</th>
+                <th class="success">Kód testu</th>
+            </tr>
+            {% if tests is defined %}
+            {% for test in tests %}
+            <tr>
+                <td>{{test.name}}</td>
+                <td>{{test.code}}</td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+        </table>
+        {% if error is defined %}
+        <div class="alert alert-warning alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <strong>{{error}}</strong>
+        </div>
+        {% endif %}
+    </center>
+    <div class="modal fade grade-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog alert-warning">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="modal-grade-label"></h4>
+                </div>
+                <div class="modal-body">
+                    <span>Nastavte převod z procent na známku - odešle se emailem společně s vyplněným testem</span>
+                    <form action="{{ path('teststest_gradeSystem') }}" method="post" data-parsley-validate>
+                        <span class="text-danger">* Zadávejte v pořadí od - do</span><br />
+                        <table class="table-grade">
+                            <tr>
+                                <td>1 = </td>
+                                <td><input type="text" name="od1" id="od1" value="100" class="form-control gradeSystem" placeholder="Od (pro známku 1)%" data-toggle="tooltip" data-placement="right" title="Zadejte číslo" data-parsley-type="number" data-parsley-trigger="change" readonly></td>
+                                <td><input type="text" name="do1" id="do1" class="form-control gradeSystem" placeholder="Do (pro známku 1)%" data-toggle="tooltip" data-placement="right" title="Zadejte číslo" data-parsley-type="number" data-parsley-trigger="change" required></td>
+                            </tr>
+                            <tr>
+                                <td>2 = </td>
+                                <td><input type="text" name="od2" id="od2" class="form-control gradeSystem" placeholder="Od (pro známku 2)%" data-toggle="tooltip" data-placement="right" title="Zadejte číslo" data-parsley-type="number" data-parsley-trigger="change" required></td>
+                                <td><input type="text" name="do2" id="do2" class="form-control gradeSystem" placeholder="Do (pro známku 2)%" data-toggle="tooltip" data-placement="right" title="Zadejte číslo" data-parsley-type="number" data-parsley-trigger="change" required></td>
+                            </tr>
+                            <tr>
+                                <td>3 = </td>
+                                <td><input type="text" name="od3" id="od3" class="form-control gradeSystem" placeholder="Od (pro známku 3)%" data-toggle="tooltip" data-placement="right" title="Zadejte číslo" data-parsley-type="number" data-parsley-trigger="change" required></td>
+                                <td><input type="text" name="do3" id="do3" class="form-control gradeSystem" placeholder="Do (pro známku 3)%" data-toggle="tooltip" data-placement="right" title="Zadejte číslo" data-parsley-type="number" data-parsley-trigger="change" required></td>
+                            </tr>
+                            <tr>
+                                <td>4 = </td>
+                                <td><input type="text" name="od4" id="od4" class="form-control gradeSystem" placeholder="Od (pro známku 4)%" data-toggle="tooltip" data-placement="right" title="Zadejte číslo" data-parsley-type="number" data-parsley-trigger="change" required></td>
+                                <td><input type="text" name="do4" id="do4" class="form-control gradeSystem" placeholder="Do (pro známku 4)%" data-toggle="tooltip" data-placement="right" title="Zadejte číslo" data-parsley-type="number" data-parsley-trigger="change" required></td>
+                            </tr>
+                            <tr>
+                                <td>5 = </td>
+                                <td><input type="text" name="od5" id="od5" class="form-control gradeSystem" placeholder="Od (pro známku 5)%" data-toggle="tooltip" data-placement="right" title="Zadejte číslo" data-parsley-type="number" data-parsley-trigger="change" required></td>
+                                <td><input type="text" name="do5" id="do5" class="form-control gradeSystem" placeholder="Do (pro známku 5)%" value="0" data-toggle="tooltip" data-parsley-type="number" data-parsley-trigger="change" readonly></td>
+                            </tr>
+                        </table>
+                        <input type="hidden" value="" name="test_id" class="test_id">
+                        <input type="submit" name="complete" class="btn btn-success pull-right" value="Hotovo">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade delete-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog alert-danger">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="modal-label"></h4>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <form action="{{ path('teststest_remove') }}" method="post">
+                        <input type="hidden" value="" name="test_id" class="test_id">
+                        <input type="submit" name="remove" class="btn btn-default pull-left" value="Ano">
+                        <button type="button" class="btn btn-default pull-right" data-dismiss="modal" aria-hidden="true">Ne</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script type="text/javascript" src="{{ asset('web/bundles/teststest/js/parsley.js') }}"></script>
+<script type="text/javascript" src="{{ asset('web/bundles/teststest/js/jquery.cookie.js') }}"></script>
+<script>
+    $(document).ready(function() {
+        var test_id;
+        $(".alert").alert();
+        $('.dropdown').click(function() {
+            test_id = $(this).attr('id');
+        });
+        $('.delete').click(function() {
+            var head = $(this).parents().eq(2).text();
+            $('.test_id').val(test_id);
+            head = head.split("Náhled")[0];
+            $("#modal-label").text("Odstranit: " + head);
+            $('.modal-body').html("Opravdu chcete <b>odstranit</b> test - <b>" + head + "</b>?");
+            $('.delete-modal').modal('show');
+        });
+        $(".grade").click(function() {
+            var head = $(this).parents().eq(2).text();
+            $('.test_id').val(test_id);
+            head = head.split("Náhled")[0];
+            $("#modal-grade-label").text(head);
+            $(".grade-modal").modal('show');
+        });
+        $('.dropdown').click(function() {
+            var id = $(this).attr('id');
+            $.cookie('id', id);
+        });
+        $(".alert").alert();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,200 @@
+{% extends "teststestBundle:Default:index.html.twig" %}
+
+{% block title %}
+Testy online | Výsledky
+{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ asset('web/bundles/teststest/css/parsley.css') }}">
+<style>
+    body {
+        background: #ffeeb7;
+    }
+    .create_screen {
+        color: #000;
+        display: block;
+        background: transparent;
+        margin: auto auto;
+    }
+    .array {
+        margin-left: 20px;
+    }
+    .points {
+        background: #000;
+        padding: 15px;
+        max-width: 300px;
+        color: #fff;
+        font-size: 25px;
+        border-radius: 7px;
+    }
+    .yellow {
+        color: yellow;
+        font-weight: bold;
+    }
+    .table-grade {
+        width: 500px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+{% set bodyCelkem = 0 %}
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#"><span class="glyphicon glyphicon-list-alt"></span> 
+                {% for t in test %}
+                {{t.name | capitalize}}
+                {% endfor %}
+            </a>
+        </div>
+    </div>
+</nav>
+<div class="container-fluid">
+    {% if test is defined %}
+    <div class="create_screen">
+        {% if grade != null %}
+        <h4>Hodnocení:</h4>
+        <table class="table-grade">
+            {% for g in grade %}
+            <tr>
+                <td class="znamka{{g.znamka}}">{{g.znamka}}</td>
+                <td class="od{{g.znamka}}">{{g.od}}%</td>
+                <td class="do{{g.znamka}}">{{g.do}}%</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+        <hr />
+        <div class="pull-right"><a href="{{ asset('web/bundles/teststest/help/zak-napoveda.pdf') }}" target="_blank"><span class="glyphicon glyphicon-question-sign"></span></a></div>
+        {% for t in test %}
+        <h2>Test vyplnil/a: {{name}}</h2>
+        <h3>Popis: {{t.description | capitalize}}</h3>
+        <hr />
+        {% for key, question in questions %}
+        <input type="hidden" id="count" value="{{questions | length}}">
+	{% set bodyCelkem = bodyCelkem + question.scale %}
+        <h4>{{key + 1}}. {{question.text | capitalize}}</h4>
+        <div class="array">
+        {% for answer in answers %}
+        {% if answer.questionId == question.id %}
+        {% if question.type == 0 %}
+        {% if answer.id != user_answers[key] and user_answers[key] != null and answer.value == 1 %}        
+            <span class="text-success">{{answer.text | capitalize}}</span><br />
+        {% elseif user_answers[key] == null and answer.value == 1 %}
+            <span class="text-success">{{answer.text | capitalize}}</span> - <span class="text-danger">Odpověď nevyplněna <span class="glyphicon glyphicon-remove"></span> - 0 bodů</span><br />
+            <input type="hidden" id="{{key}}" value="0">
+        {% elseif answer.id == user_answers[key] and answer.value == 1 %}
+            <span class="text-success">{{answer.text | capitalize}} <span class="glyphicon glyphicon-ok"></span> - {{question.scale}} bodů</span><br />
+            <input type="hidden" id="{{key}}" value="{{question.scale}}">
+        {% elseif answer.id == user_answers[key] and answer.value == 0 %}
+            <span class="text-danger">{{answer.text | capitalize}} <span class="glyphicon glyphicon-remove"></span> - 0 bodů</span><br />
+            <input type="hidden" id="{{key}}" value="0">
+        {% else %}
+        {{answer.text | capitalize}}<br />
+        {% endif %}
+        {% else %}
+        {% if answer.text == user_answers[key] %}
+            <span class="text-success">{{answer.text | capitalize}} <span class="glyphicon glyphicon-ok"></span> - {{question.scale}} bodů</span><br />
+            <input type="hidden" id="{{key}}" value="{{question.scale}}">
+        {% elseif user_answers[key] == null %}
+            Vaše odpověď <span class="text-danger">nebyla vyplněna <span class="glyphicon glyphicon-remove"></span> - 0 bodů</span><br />
+            <span class="text-success">{{answer.text | capitalize}}</span><br />
+            <input type="hidden" id="{{key}}" value="0">
+        {% elseif user_answers[key] != null %}
+            Vaše odpověď: <span class="text-danger">{{user_answers[key] | capitalize}} <span class="glyphicon glyphicon-remove"></span> - 0 bodů</span><br />
+            <span class="text-success">{{answer.text | capitalize}}</span><br />
+            <input type="hidden" id="{{key}}" value="0">
+        {% endif %}
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+        </div>
+        {% endfor %}
+        <input type="hidden" id="bodyCelkem" value="{{bodyCelkem}}">
+        {% endfor %}
+        <center>
+            <div class="points">
+	     </div>
+	     <a href="#" style="margin-top: 5px; margin-bottom: 5px" class="btn btn-success sendStudent" data-toggle="tooltip" data-placement="right" title="Máš pocit, že některá z tvých odpovědí byla špatně vyhodnocena? Nech si zaslat výsledky na e-mail a následně je předlož vyučujícímu.">Pošli mi výsledky na E-mail</a><br />
+            <a href="{{ path('teststest_homepage') }}" class="btn btn-danger">Zavřít</a>
+        </center>
+    </div>
+    {% endif %}
+    <div class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only"></span></button>
+                    <h4 class="modal-title">Odeslat výsledky na email</h4>
+                </div>
+                <form action="{{ path('teststest_sendSE') }}" method="post" data-parsley-validate>
+                    <div class="modal-body">
+                        <input type="email" autocomplete="off" class="form-control" name="email" id="email" placeholder="Zadejte email" data-parsley-trigger="change" required="required">
+                        <input type="submit" value="Odeslat" name="send" class="form-control btn btn-warning">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script type="text/javascript" src="{{ asset('web/bundles/teststest/js/parsley.js') }}"></script>
+<script>
+    (function(i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function() {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-49280257-1', 'stpr.cz');
+    ga('send', 'pageview');
+
+    $(document).ready(function() {
+        var count = $("#count").val();
+        var bodyCelkem = $("#bodyCelkem").val();
+        var points = 0;
+        var vyslednaZnamka = 0;
+        var od = [$(".od1").text(), $(".od2").text(), $(".od3").text(), $(".od4").text(), $(".od5").text()];
+        var doT = [$(".do1").text(), $(".do2").text(), $(".do3").text(), $(".do4").text(), $(".do5").text()];
+
+        for (var i = 0; i < count; i++) {
+            var point = parseInt($("#" + i).val());
+            points = points + point;
+        }
+
+        var procenta = Math.floor((points / bodyCelkem) * 100);
+
+        if (od !== null || doT !== null) {
+            for (var i = 0; i < 5; i++) {
+                if (procenta <= parseInt(od[i]) && procenta > parseInt(doT[i])) {
+                    vyslednaZnamka = i + 1;
+                }
+            }
+            $(".points").html("V testu jste získal/a: <br /><b>" + points + " bodů z " + bodyCelkem + " </b><br /><span class='yellow'>" + procenta + "%</span><br /><h3 class='text-danger'>" + vyslednaZnamka + "</h3>");
+        } else {
+            $(".points").html("V testu jste získal/a: <br /><b>" + points + " bodů z " + bodyCelkem + " </b><br /><span class='yellow'>" + procenta + "%</span>");
+        }
+
+        $(".sendStudent").tooltip();
+
+        $(".sendStudent").click(function() {
+            $('.modal').modal();
+        });
+    });
+</script>
+{% endblock %}

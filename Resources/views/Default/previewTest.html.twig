@@ -1,0 +1,350 @@
+{% extends "teststestBundle:Default:index.html.twig" %}
+
+{% block title %}
+Náhled testu
+{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ asset('web/bundles/teststest/css/parsley.css') }}">
+<style>
+    body {
+        background: #ffeeb7;
+    }
+    .table {
+        max-width: 640px;
+    }
+    .succ {
+        color: greenyellow;
+    }
+    .create_screen {
+        display: block;
+    }
+    .modal-title {
+        color: black;
+    }
+    .table-grade {
+        width: 500px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{{ path('teststest_homepage') }}">TESTY ONLINE</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <form class="navbar-form navbar-right">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                    <span class="glyphicon glyphicon-user"></span> 
+                        {% if username is defined %}
+                            {{username.name | capitalize}} {{username.surname | capitalize}}
+                        {% endif %}
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="{{ path('teststest_homepage') }}">Domů <span class="pull-right glyphicon glyphicon-home"></span></a></li>
+                    <li><a href="{{ path('teststest_newTest') }}">Nový test <span class="pull-right glyphicon glyphicon-list-alt"></span></a></li>
+                    <li><a href="{{ path('teststest_setting') }}">Nastavení <span class="pull-right glyphicon glyphicon-wrench"></span></a></li>
+                    <li class="divider"></li>
+                    <li><a href="{{ asset('web/bundles/teststest/help/ucitel-napoveda.pdf') }}" target="_blank">Nápověda <span class="pull-right glyphicon glyphicon-question-sign"></span></a></li>
+                    <li><a href="{{ path('teststest_logout') }}">Odhlásit se <span class="pull-right glyphicon glyphicon-log-out"></span></a></li>
+                </ul>
+            </form>
+        </div>
+    </div>
+</nav>
+<div class="container-fluid">
+        {% if error is defined %}
+    <div class="alert alert-warning alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <strong>{{error}}</strong>
+    </div>
+        {% endif %}
+        {% if tests is defined %}
+    <div class="list-group pull-right">
+        <center><h4>Možnosti</h4></center>
+        <a href="#" class="newQuestionClick list-group-item" data-toggle="tooltip" data-placement="left" title="1 otázka + 3 možnosti na výběr">+ Nová otázka - 3 možnosti</a>
+        <a href="#" class="newQuestAnswClick list-group-item" data-toggle="tooltip" data-placement="left" title="1 otázka - žák odpoví pomocí textového pole">+ Nová otázka - odpovídání</a>
+    </div>
+    <div class="create_screen">
+                {% for test in tests %}
+        <h1>Test: {{test.name | capitalize}}</h1>
+        <h2>Popis: {{test.description | capitalize}}</h2>
+        <h4>
+            Výsledky se odešlou na: <b>{{test.email}}</b><br />
+                        {% if test.time == 0 %}
+            Časové omezení: <b>Bez časového omezení</b><br />
+                        {% endif %}
+                        {% if test.time != 0 %}
+            Časové omezení: <b>{{test.time}} minut</b><br />
+                        {% endif %}
+            Test je určen třídě: <b>{{test.class}}</b><br />
+            Přístupový kód testu: <b>{{test.code}}</b><br />
+        </h4>
+	 {% if grade is defined %}
+                    {% if grade != null %}
+        <h4>Známkování:</h4>
+        <table class="table-grade">
+                        {% for g in grade %}
+            <tr>
+                <td>{{g.znamka}}</td>
+                <td>{{g.od}}%</td>
+                <td>{{g.do}}%</td>
+            </tr>
+                        {% endfor %}
+        </table>
+                    {% endif %}
+	 {% endif %}
+        <hr />
+                    {% for question in questions %}
+        <div class="pull-right">
+                            {% if question.type == 1 %}
+            <a href="#" class="edit" id="{{question.id}} 1 {{question.scale}}" data-toggle="tooltip" data-placement="bottom" title="Upravit otázku"><span class="glyphicon glyphicon-pencil"></span></a>
+                                {% else %}
+            <a href="#" class="edit" id="{{question.id}} 0 {{question.scale}}" data-toggle="tooltip" data-placement="bottom" title="Upravit otázku"><span class="glyphicon glyphicon-pencil"></span></a>
+                                {% endif %}
+            <a href="#" class="delete" id="{{question.id}}" data-toggle="tooltip" data-placement="bottom" title="Odstranit otázku"><span class="glyphicon glyphicon-remove"></span></a>
+        </div>
+        <h3 class="question">{{loop.index}}) {{question.text | capitalize}}</h3>
+        <ol>
+                            {% for answer in answers %}
+                                {% if answer.questionId == question.id %}
+                                    {% if answer.value == 1 %}
+            <li><b class="succ">{{answer.text | capitalize}}</b></li>
+                                        {% else %}
+            <li><b>{{answer.text | capitalize}}</b></li>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if question.type == 1 %}
+            <div class="modal fade" id="q{{question.id}}">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <h3 class="modal-title">Upravit otázku</h3>
+                        </div>
+                        <div class="modal-body">
+                            <form id="newTest" action="{{ path('teststest_editNewQuestionAnswer') }}" method="post" data-parsley-validate>
+                                <input type="text" value="{{question.text | capitalize}}" name="questionText" class="questionText form-control" placeholder="Text otázky" data-toggle="tooltip" data-placement="right" title="Zadejte text otázky" data-parsley-trigger="change" required>
+                                <input type="hidden" name="testId" value="{{test.id}}">
+                                <input type="hidden" name="questionId" value="{{question.id}}">
+                                <select name="scale" class="scale form-control" data-toggle="tooltip" data-placement="right" title="Zadejte váhu této otázky" data-parsley-trigger="change" required>
+                                    <option value="10">10 - nejvyšší váha</option>
+                                    <option value="9">9</option>
+                                    <option value="8">8</option>
+                                    <option value="7">7</option>
+                                    <option value="6">6</option>
+                                    <option value="5">5</option>
+                                    <option value="4">4</option>
+                                    <option value="3">3</option>
+                                    <option value="2">2</option>
+                                    <option value="1">1 - nejnižší váha</option>
+                                </select>
+                                                    {% for answer in answers %}
+                                                        {% if answer.questionId == question.id %}
+                                <input type="text" value="{{answer.text | capitalize}}" name="questionAnswer" id="questionAnswer" class="form-control" placeholder="Text odpovědi" data-toggle="tooltip" data-placement="right" title="Zadejte text odpovědi" data-parsley-trigger="change" required>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                <input type="submit" id="questionConfirm" name="questionConfirm" class="btn btn-success" value="Upravit otázku">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                            {% else %}
+            <div class="modal fade" id="q{{question.id}}">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <h3 class="modal-title">Upravit otázku</h3>
+                        </div>
+                        <div class="modal-body">
+                            <form id="newTest" action="{{ path('teststest_editNewQuestion') }}" method="post" data-parsley-validate>
+                                <input value="{{question.text | capitalize}}" type="text" name="questionText" class="questionText form-control" placeholder="Text otázky" data-toggle="tooltip" data-placement="right" title="Zadejte text otázky" data-parsley-trigger="change" required>
+                                <input type="hidden" name="questionId" value="{{question.id}}">
+                                <select name="scale" class="scale form-control" data-toggle="tooltip" data-placement="right" title="Zadejte váhu této otázky" data-parsley-trigger="change" required>
+                                    <option value="10">10 - nejvyšší váha</option>
+                                    <option value="9">9</option>
+                                    <option value="8">8</option>
+                                    <option value="7">7</option>
+                                    <option value="6">6</option>
+                                    <option value="5">5</option>
+                                    <option value="4">4</option>
+                                    <option value="3">3</option>
+                                    <option value="2">2</option>
+                                    <option value="1">1 - nejnižší váha</option>
+                                </select>
+                                <div class="radio">
+                                                        {% set answerName = 1 %}
+                                                        {% for answer in answers %}
+                                                            {% if answer.questionId == question.id %}
+                                                                {% if answerName == 4 %}
+                                                                    {% set answerName = 1 %}
+                                                                {% endif %}
+                                    <input type="hidden" name="answerId{{loop.index}}" value="{{answer.id}}">
+                                                                {% if answer.value == 1 %}
+                                    <input checked="checked" type="radio" class="tAnswer" name="tAnswer" value="{{loop.index}}" data-toggle="tooltip" data-placement="left" title="Zaškrtněte v případě, že je tato odpověď správná" data-parsley-trigger="change" required="required">
+                                                                {% else %}
+                                    <input type="radio" class="tAnswer" name="tAnswer" value="{{loop.index}}" data-toggle="tooltip" data-placement="left" title="Zaškrtněte v případě, že je tato odpověď správná" data-parsley-trigger="change" required="required">
+                                                                {% endif %}
+                                    <input value="{{answer.text | capitalize}}" type="text" name="answer{{loop.index}}" class="answer form-control" placeholder="Text odpovědi" data-toggle="tooltip" data-placement="right" title="Zadejte text odpovědi" data-parsley-trigger="change" required="required">
+                                                                {% set answerName = answerName + 1 %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                </div>
+                                <input type="submit" id="questionConfirm" name="questionConfirm" class="btn btn-success" value="Vytvořit otázku">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                            {% endif %}
+        </ol>
+        <hr />
+                    {% endfor %}
+        <div class="modal fade" id="modalNewQuestAnsw">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h3 class="modal-title">Vytvořit novou otázku</h3>
+                    </div>
+                    <div class="modal-body">
+                        <form id="newTest" action="{{ path('teststest_prevNewQuestionAnswer') }}" method="post" data-parsley-validate>
+                            <span class="text-danger">* Slouží pro zadávání číselných hodnot</span>
+                            <input type="text" autocomplete="off" name="questionText" class="questionText form-control" placeholder="Text otázky" data-toggle="tooltip" data-placement="right" title="Zadejte text otázky" data-parsley-trigger="change" required>
+                            <input type="hidden" name="testId" value="{{test.id}}">
+                            <select name="scale" class="scale form-control" data-toggle="tooltip" data-placement="right" title="Zadejte váhu této otázky" data-parsley-trigger="change" required>
+                                <option value="10">10 - nejvyšší váha</option>
+                                <option value="9">9</option>
+                                <option value="8">8</option>
+                                <option value="7">7</option>
+                                <option value="6">6</option>
+                                <option value="5">5</option>
+                                <option value="4">4</option>
+                                <option value="3">3</option>
+                                <option value="2">2</option>
+                                <option value="1">1 - nejnižší váha</option>
+                            </select>
+                            <input type="text" autocomplete="off" name="questionAnswer" id="questionAnswer" class="form-control" placeholder="Text odpovědi" data-toggle="tooltip" data-placement="right" title="Zadejte text odpovědi (číslo)" data-parsley-type="number" data-parsley-trigger="change" required>
+                            <input type="submit" id="questionConfirm" name="questionConfirm" class="btn btn-success" value="Vytvořit otázku">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="modalNewQuestion">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h3 class="modal-title">Vytvořit novou otázku</h3>
+                    </div>
+                    <div class="modal-body">
+                        <form id="newTest" action="{{ path('teststest_prevNewQuestion') }}" method="post" data-parsley-validate>
+                            <input type="text" autocomplete="off" name="questionText" class="questionText form-control" placeholder="Text otázky" data-toggle="tooltip" data-placement="right" title="Zadejte text otázky" data-parsley-trigger="change" required>
+                            <input type="hidden" name="testId" value="{{test.id}}">
+                            <select name="scale" class="scale form-control" data-toggle="tooltip" data-placement="right" title="Zadejte váhu této otázky" data-parsley-trigger="change" required>
+                                <option value="10">10 - nejvyšší váha</option>
+                                <option value="9">9</option>
+                                <option value="8">8</option>
+                                <option value="7">7</option>
+                                <option value="6">6</option>
+                                <option value="5">5</option>
+                                <option value="4">4</option>
+                                <option value="3">3</option>
+                                <option value="2">2</option>
+                                <option value="1">1 - nejnižší váha</option>
+                            </select>
+                            <div class="radio">
+                                <input type="radio" class="tAnswer" name="tAnswer" value="1" data-toggle="tooltip" data-placement="left" title="Zaškrtněte v případě, že je tato odpověď správná" data-parsley-trigger="change" required>
+                                <input type="text" autocomplete="off" name="answer1" class="answer form-control" placeholder="Text odpovědi" data-toggle="tooltip" data-placement="right" title="Zadejte text odpovědi" data-parsley-trigger="change" required>
+                            </div>
+                            <div class="radio">
+                                <input type="radio" class="tAnswer" name="tAnswer" value="2" data-toggle="tooltip" data-placement="left" title="Zaškrtněte v případě, že je tato odpověď správná" data-parsley-trigger="change" required>
+                                <input type="text" autocomplete="off" name="answer2" class="answer form-control" placeholder="Text odpovědi" data-toggle="tooltip" data-placement="right" title="Zadejte text odpovědi" data-parsley-trigger="change" required>
+                            </div>
+                            <div class="radio">
+                                <input type="radio" class="tAnswer" name="tAnswer" value="3" data-toggle="tooltip" data-placement="left" title="Zaškrtněte v případě, že je tato odpověď správná" data-parsley-trigger="change" required>
+                                <input type="text" autocomplete="off" name="answer3" class="answer form-control" placeholder="Text odpovědi" data-toggle="tooltip" data-placement="right" title="Zadejte text odpovědi" data-parsley-trigger="change" required>
+                            </div>
+                            <input type="submit" id="questionConfirm" name="questionConfirm" class="btn btn-success" value="Vytvořit otázku">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+                {% endfor %}
+    </div>
+    <div class="modal fade deleteModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Odstranit otázku</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Opravdu chcete tuto otázku odstranit?</p>
+                </div>
+                <div class="modal-footer">
+                    <form action="{{ path('teststest_deleteOneQ') }}" method="post">
+                        <input type="hidden" class="hidQid" name="hidQid" value="">
+                        <input type="submit" value="Ano" class="btn btn-success">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Ne</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+        {% endif %}
+</div>
+{% endblock %}
+{% block javascripts %}
+<script type="text/javascript" src="{{ asset('web/bundles/teststest/js/parsley.js') }}"></script>
+<script>
+    $(document).ready(function() {
+        $('.delete').tooltip();
+        $('.edit').tooltip();
+        $('.newQuestAnswClick').hover(function() {
+            $('.newQuestAnswClick').tooltip();
+        });
+        $('.newQuestionClick').hover(function() {
+            $('.newQuestionClick').tooltip();
+        });
+        $('.newQuestionClick').click(function() {
+            $('#modalNewQuestion').modal();
+        });
+        $('.newQuestAnswClick').click(function() {
+            $('#modalNewQuestAnsw').modal();
+        });
+        $('.edit').click(function() {
+            var questionId = $(this).attr('id').split(' ')[0];
+            var id = $(this).attr('id').split(' ')[1];
+            var scale = $(this).attr('id').split(' ')[2];
+            if (id > 0) {
+                $('.scale').val(scale);
+                $("#q" + questionId).modal();
+            } else {
+                $('.scale').val(scale);
+                $("#q" + questionId).modal();
+            }
+        });
+        $('.delete').click(function() {
+            var qid = $(this).attr('id');
+            $('.hidQid').val(qid);
+            $('.deleteModal').modal();
+        });
+    });
+</script>
+{% endblock %}

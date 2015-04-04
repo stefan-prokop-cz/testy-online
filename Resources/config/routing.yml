@@ -1,0 +1,77 @@
+#Default
+teststest_homepage:
+    pattern:  /
+    defaults: { _controller: teststestBundle:Default:index }
+teststest_logout:
+    pattern: /logout
+    defaults: { _controller: teststestBundle:Default:logout }
+teststest_newTest:
+    pattern: /new
+    defaults: { _controller: teststestBundle:Default:new }
+teststest_newTestSave:
+    pattern: /new/save
+    defaults: { _controller: teststestBundle:Default:newSave }
+teststest_newQuestionSave:
+    pattern: /new/question
+    defaults: { _controller: teststestBundle:Default:newQuestion }
+teststest_newQuestAnswSave:
+    pattern: /new/answer
+    defaults: { _controller: teststestBundle:Default:newQuestAnsw }
+teststest_remove:
+    pattern: /remove
+    defaults: { _controller: teststestBundle:Default:removeTest }
+teststest_preview:
+    pattern: /test/{testCode}
+    defaults: { _controller: teststestBundle:Default:previewTest }
+teststest_setting:
+    pattern: /setting
+    defaults: { _controller: teststestBundle:Default:setting }
+teststest_deleteOneQ:
+    pattern: /done
+    defaults: { _controller: teststestBundle:Default:deleteOneQ }
+teststest_prevNewQuestion:
+    pattern: /doneQ
+    defaults: { _controller: teststestBundle:Default:prevNewQuestion }
+teststest_prevNewQuestionAnswer:
+    pattern: /doneA
+    defaults: { _controller: teststestBundle:Default:prevNewQuestionAnswer }
+teststest_editNewQuestionAnswer:
+    pattern: /doneEd
+    defaults: { _controller: teststestBundle:Default:editNewQuestionAnswer }
+teststest_editNewQuestion:
+    pattern: /doneE
+    defaults: { _controller: teststestBundle:Default:editNewQuestion }
+teststest_gradeSystem:
+    pattern: /grade
+    defaults: { _controller: teststestBundle:Default:gradeSystem }
+
+#Admin
+teststest_admin:
+    pattern:  /admin
+    defaults: { _controller: teststestBundle:Admin:admin }
+teststest_register:
+    pattern: /admin/register
+    defaults: { _controller: teststestBundle:Admin:register }
+teststest_data:
+    pattern: /data
+    defaults: { _controller: teststestBundle:Admin:data }
+teststest_dataUser:
+    pattern: /data/{userName}
+    defaults: { _controller: teststestBundle:Admin:dataUser }
+teststest_deleteUser:
+    pattern: /delete
+    defaults: { _controller: teststestBundle:Admin:deleteUser }
+teststest_changePassword:
+    pattern: /changePassword
+    defaults: { _controller: teststestBundle:Admin:changePassword }
+    
+#Test
+teststest_fillTest:
+    pattern: /test
+    defaults: { _controller: teststestBundle:Test:fillTest }
+teststest_testConfirm:
+    pattern: /confirm
+    defaults: { _controller: teststestBundle:Test:testConfirm }
+teststest_sendSE:
+    pattern: /email
+    defaults: { _controller: teststestBundle:Test:sendSE }

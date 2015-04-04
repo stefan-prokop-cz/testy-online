@@ -1,0 +1,105 @@
+{% extends "teststestBundle:Default:index.html.twig" %}
+
+{% block title %}
+Administrace | Data
+{% endblock %}
+
+{% block styles %}
+<style>
+    body {
+        background: #ffeeb7;
+    }
+    .new-user {
+        max-width: 640px;
+        padding-bottom: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{{ path('teststest_admin') }}">TESTY ONLINE</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <form class="navbar-form navbar-right">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                    <span class="glyphicon glyphicon-user"></span> 
+                    {% if username is defined %}
+                    {{username.name | capitalize}} {{username.surname | capitalize}}
+                    {% endif %}
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="{{ path('teststest_admin') }}">Registrace <span class="pull-right glyphicon glyphicon-plus"></span></a></li>
+                    <li><a href="{{ path('teststest_data') }}">Data <span class="pull-right glyphicon glyphicon-folder-open"></span></a></li>
+                    <li><a href="{{ path('teststest_setting') }}">Nastavení <span class="pull-right glyphicon glyphicon-wrench"></span></a></li>
+                    <li class="divider"></li>
+                    <li><a href="{{ asset('web/bundles/teststest/help/admin-napoveda.pdf') }}" target="_blank">Nápověda <span class="pull-right glyphicon glyphicon-question-sign"></span></a></li>
+                    <li><a href="{{ path('teststest_logout') }}">Odhlásit se <span class="pull-right glyphicon glyphicon-log-out"></span></a></li>
+                </ul>
+            </form>
+        </div>
+    </div>
+</nav>
+<div class="container-fluid">
+    <center>
+    {% if users is defined %}
+        <h1>Vaši uživatelé</h1>
+        <h4>
+            Pro podrobnosti o uživatelově aktivitě klikněte na jeho jméno
+        </h4>
+        {% for user in users %}
+        {% if loop.index % 2 %}
+        <div class="alert alert-success col-md-4" role="alert">
+            <a href="{{ path('teststest_dataUser', {'userName': user.name ~ user.surname})}}" class="part" id="{{user.id}}"><h2>{{user.name}} {{user.surname}}</h2></a>
+            <table class="table table-condensed">
+                <tr>
+                    <td>Uživatelské jméno:</a></td>
+                    <td>{{user.username}}</td>
+                </tr>
+                <tr>
+                    <td>Email:</td>
+                    <td>{{user.email}}</td>
+                </tr>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info col-md-4" role="alert">
+            <a href="{{ path('teststest_dataUser', {'userName': user.name ~ user.surname})}}" class="part" id="{{user.id}}"><h2>{{user.name}} {{user.surname}}</h2></a>
+            <table class="table table-condensed">
+                <tr>
+                    <td>Uživatelské jméno:</td>
+                    <td>{{user.username}}</td>
+                </tr>
+                <tr>
+                    <td>Email:</td>
+                    <td>{{user.email}}</td>
+                </tr>
+            </table>
+        </div>
+        {% endif %}
+        {% endfor %}
+    {% endif %}
+    </center>
+</div>
+{% endblock %}
+{% block javascripts %}
+<script type="text/javascript" src="{{ asset('web/bundles/teststest/js/jquery.cookie.js') }}"></script>
+<script>
+    $(document).ready(function() {
+        $('.part').click(function(){
+            var id = $(this).attr('id');
+            $.cookie('id', id);
+        });
+    });
+</script>
+{% endblock %}

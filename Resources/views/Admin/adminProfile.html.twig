@@ -1,0 +1,107 @@
+{% extends "teststestBundle:Default:index.html.twig" %}
+
+{% block title %}
+Administrace
+{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ asset('web/bundles/teststest/css/parsley.css') }}">
+<style>
+    body {
+        background: #ffeeb7;
+    }
+    .new-user {
+        max-width: 640px;
+        padding-bottom: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{{ path('teststest_admin') }}">TESTY ONLINE</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <form class="navbar-form navbar-right">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                    <span class="glyphicon glyphicon-user"></span> 
+                    {% if username is defined %}
+                    {{username.name | capitalize}} {{username.surname | capitalize}}
+                    {% endif %}
+                    {% if name is defined %}
+                    {{name | capitalize}} {{surname | capitalize}}
+                    {% endif %}
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="{{ path('teststest_admin') }}">Registrace <span class="pull-right glyphicon glyphicon-plus"></span></a></li>
+                    <li><a href="{{ path('teststest_data') }}">Data <span class="pull-right glyphicon glyphicon-folder-open"></span></a></li>
+                    <li><a href="{{ path('teststest_setting') }}">Nastavení <span class="pull-right glyphicon glyphicon-wrench"></span></a></li>
+                    <li class="divider"></li>
+                    <li><a href="{{ asset('web/bundles/teststest/help/admin-napoveda.pdf') }}" target="_blank">Nápověda <span class="pull-right glyphicon glyphicon-question-sign"></span></a></li>
+                    <li><a href="{{ path('teststest_logout') }}">Odhlásit se <span class="pull-right glyphicon glyphicon-log-out"></span></a></li>
+                </ul>
+            </form>
+        </div>
+    </div>
+</nav>
+<div class="container-fluid">
+    <center>
+        {% if error is defined %}
+        <div class="alert alert-danger alert-dismissable new-user">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <strong>
+                {{error}}
+            </strong>
+        </div>
+        {% endif %}
+        {% if message is defined %}
+        <div class="alert alert-success alert-dismissable new-user">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <strong>
+                {{message}}
+            </strong>
+        </div>
+        {% endif %}
+        <h1>Vytvořit nového uživatele</h1>
+        <form class="new-user" data-parsley-validate action="{{ path('teststest_register') }}" method="post">
+            <h4>
+                Jako administrátor máte právo vytvořit nového uživatele, uživatel, kterého registrujete, bude mít právo vytvářet 
+                testy pro žáky a bude vystupovat pod Vaší školou.
+            </h4>
+            <input class="form-control" name="name" id="name" type="text" placeholder="Jméno" required="required" data-parsley-trigger="change" data-toggle="tooltip" data-placement="right" title="Jméno nového uživatele">
+            <input class="form-control" name="surname" id="surname" type="text" placeholder="Příjmení" required="required" data-parsley-trigger="change" data-toggle="tooltip" data-placement="right" title="Příjmení nového uživatele">
+            <input class="form-control" name="username" id="username" type="text" placeholder="Uživatelské jméno" required="required" data-parsley-trigger="change" data-toggle="tooltip" data-placement="right" title="Uživatelské jméno">
+            <input class="form-control" name="email" id="email" type="email" placeholder="Email uživatele" required="required" data-parsley-trigger="change" data-toggle="tooltip" data-placement="right" title="Email, na který budou uživateli odeslány registrační údaje">
+            <input class="form-control" name="password" id="password" type="password" placeholder="Heslo" required="required" data-parsley-trigger="change" data-parsley-minlength="8" data-toggle="tooltip" data-placement="right" title="Heslo nového uživatele - minimálně 8 znaků">
+            <input class="form-control" id="r-password" type="password" placeholder="Heslo znovu" required="required" data-parsley-trigger="change" data-parsley-equalto="#password" data-toggle="tooltip" data-placement="right" title="Ověření hesla">
+            <input type="hidden" name="school" value="{{school}}">
+            <input class="form-control btn btn-warning" name="register" type="submit" value="Registrovat">
+        </form>
+    </center>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script type="text/javascript" src="{{ asset('web/bundles/teststest/js/parsley.js') }}"></script>
+<script>
+    $(document).ready(function() {
+        $('#name').tooltip();
+        $('#surname').tooltip();
+        $('#username').tooltip();
+        $('#email').tooltip();
+        $('#password').tooltip();
+        $('#r-password').tooltip();
+        $(".alert").alert();
+    });
+</script>
+{% endblock %}

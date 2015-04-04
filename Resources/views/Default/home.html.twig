@@ -1,0 +1,97 @@
+{% extends "teststestBundle:Default:index.html.twig" %}
+
+{% block title %}
+Testy online
+{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <form action="{{ path('teststest_homepage') }}" method="post" class="navbar-form navbar-right">
+                <div class="form-group">
+                    <input type="text" name="username" class="form-control" placeholder="Přihlašovací jméno" required="required">
+                </div>
+                <div class="form-group">
+                    <input type="password" name="password" class="form-control" placeholder="Heslo" required="required">
+                </div>
+                <input type="submit" name="login" value="Přihlásit se" class="btn btn-warning">
+            </form>
+            <form class="navbar-form navbar-left">
+                <a href="{{ path('teststest_fillTest') }}" class="btn btn-success"><span class="glyphicon glyphicon-hand-right"></span> Vyplnit test <span class="glyphicon glyphicon-hand-left"></span></a>
+            </form>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    {% if message is defined %}
+    <div class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title">Email</h4>
+                </div>
+                <div class="modal-body">
+                    <p>{{message}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if error is defined %}
+    <div class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Chyba přihlášení</h4>
+                </div>
+                <div class="modal-body">
+                    <p>{{ error }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <h1 class="bh">Kdo jsme?</h1>
+    <div class="jumbotron">
+        <p>
+            Milí <b>učitelé, učitelky</b>. Vytvářejte <b>testy rychleji, jednodušeji a efektivněji</b>.
+            Ve webovém prostředí můžete vytvářet testy <b>bez omezeného počtu</b> otázek a odpovědí s možností případné <b>editace testu</b>.
+            Prostředí nabízí možnost zadání <b>procentuelního převodu na známku</b>.
+        </p>
+    </div>
+    <footer>
+        <hr />
+        <div class="jumbotron">
+            <a href="{{ path('teststest_admin') }}" class="btn btn-success"><span class="glyphicon glyphicon-hand-right"></span> Školní administrace</a>
+            <center>Stránky vytvořil <a href="http://stpr.cz">Štefan Prokop</a> v rámci maturitní práce.<br />&copy; SPŠ Ostrov, 2014 - 2015</center><br />
+        </div>
+        <center>
+            <div class="cookies alert alert-info alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <strong>Tyto stránky využívají Cookies. Jejich používáním souhlasíte se <a href="http://czech.oki.com/terms-of-use/index.aspx" target="_blank">zásadami práce s cookies</a>.</strong>
+            </div>
+        </center>
+    </footer>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    $(document).ready(function() {
+        $('.modal').modal();
+        $('.cookies').alert();
+    });
+</script>
+{% endblock %}

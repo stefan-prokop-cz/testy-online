@@ -1,0 +1,71 @@
+{% block body %}
+<div class="emailL">
+<h1>Test vypracoval: {{name}}</h1>
+{% set b = 0 %}
+{% set znamka = 0 %}
+{% set bodyCelkem = 0 %}
+{% if test is defined %}
+{% for t in test %}
+<h3>Čas: {{"now" | date('Y/m/d')}} v {{"now" | date('H/i/s')}}</h3>
+<h2>Název testu: {{t.name}}</h2>
+<h3>Popis: {{t.description | capitalize}}</h3>
+<hr />
+{% for key, question in questions %}
+{% set bodyCelkem = bodyCelkem + question.scale %}
+<h4>{{key + 1}}. {{question.text | capitalize}}</h4>
+{% for answer in answers %}
+        {% if answer.questionId == question.id %}
+        {% if question.type == 0 %}
+        {% if answer.id != user_answers[key] and user_answers[key] != null and answer.value == 1 %}        
+<span style="color: green">{{answer.text | capitalize}}</span><br />
+        {% elseif user_answers[key] == null and answer.value == 1 %}
+<span style="color: green">{{answer.text | capitalize}} - Odpověď nevyplněna - 0 bodů</span><br />
+        {% elseif answer.id == user_answers[key] and answer.value == 1 %}
+<span style="color: green">{{answer.text | capitalize}} - {{question.scale}} bodů</span><br />
+        {% set b = question.scale + b %}
+        {{b}}
+        {% elseif answer.id == user_answers[key] and answer.value == 0 %}
+<span style="color: red">{{answer.text | capitalize}} - 0 bodů</span><br />
+        {% else %}
+        {{answer.text | capitalize}}<br />
+        {% endif %}
+        {% else %}
+        {% if answer.text == user_answers[key] %}
+<span style="color: green">{{answer.text | capitalize}} - {{question.scale}} bodů</span><br />
+        {% set b = question.scale + b %}
+        {{b}}
+        {% elseif user_answers[key] == null %}
+Odpověď <span style="color: red">nebyla vyplněna - 0 bodů</span><br />
+<span style="color: green">{{answer.text | capitalize}}</span><br />
+        {% elseif user_answers[key] != null %}
+Odpověď: <span style="color: red">{{user_answers[key] | capitalize}} - 0 bodů</span><br />
+<span style="color: green">{{answer.text | capitalize}}</span><br />
+        {% endif %}
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+{% endfor %}
+{% endfor %}
+{% endif %}
+{% if grade != null %}
+    {% for key, g in grade %}
+        {% if ((b / bodyCelkem) * 100) <= g.od and ((b / bodyCelkem) * 100) >= g.do %}
+        {% set znamka = key + 1 %}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+<br />
+{% if znamka > 0 %}
+<center><h1>Počet bodů: {{b}} z {{bodyCelkem}}<br />{{(b / bodyCelkem) * 100}}%<br /><span class="text-danger">{{znamka}}</span></h1></center>
+{% else %}
+<center><h1>Počet bodů: {{b}} z {{bodyCelkem}}<br />{{(b / bodyCelkem) * 100}}%</h1></center>
+{% endif %}
+</div>
+
+<script type="text/javascript" src="{{ asset('web/bundles/teststest/js/jquery.cookie.js') }}"></script>
+<script type="text/javascript" src="{{ asset('web/bundles/teststest/js/jquery-1.11.0.min.js') }}"></script>
+<script>    
+    var renderViewForEmail = $(".emailL").html();
+    $.cookie('renderViewForEmail', renderViewForEmail);
+</script>
+{% endblock %}

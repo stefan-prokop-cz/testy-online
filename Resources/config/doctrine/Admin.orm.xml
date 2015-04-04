@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+  <entity name="tests\testBundle\Entity\Admin" table="admin">
+    <id name="id" type="integer" column="id">
+      <generator strategy="IDENTITY"/>
+    </id>
+    <field name="admin" type="string" column="admin" length="50" nullable="false"/>
+    <field name="password" type="string" column="password" length="255" nullable="false"/>
+    <field name="name" type="string" column="name" length="100" nullable="false"/>
+    <field name="surname" type="string" column="surname" length="100" nullable="false"/>
+    <field name="email" type="string" column="email" length="150" nullable="false"/>
+    <field name="school" type="string" column="school" length="60" nullable="false"/>
+  </entity>
+</doctrine-mapping>

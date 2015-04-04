@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+  <entity name="tests\testBundle\Entity\Testing" table="testing">
+    <id name="id" type="integer" column="id">
+      <generator strategy="IDENTITY"/>
+    </id>
+    <field name="loginTime" type="float" column="login_time" precision="10" scale="0" nullable="false"/>
+    <field name="tconfirmTime" type="float" column="tconfirm_time" precision="10" scale="0" nullable="false"/>
+    <field name="selectTestTime" type="float" column="select_test_time" precision="10" scale="0" nullable="false"/>
+  </entity>
+</doctrine-mapping>

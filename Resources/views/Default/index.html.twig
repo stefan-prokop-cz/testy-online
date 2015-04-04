@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="cs-CZ">
+    <head>
+        <meta charset="UTF-8" />
+        <title>{% block title %}{% endblock %}</title>
+        <link rel="stylesheet" href="{{ asset('web/bundles/teststest/css/styles.css') }}">
+        <link rel="stylesheet" href="{{ asset('web/bundles/teststest/css/styles-theme.css') }}">
+        <script type="text/javascript" src="{{ asset('web/bundles/teststest/js/jquery-1.11.0.min.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('web/bundles/teststest/js/index.min.js') }}"></script>
+        <link rel="icon" href="{{ asset('web/bundles/teststest/img/ico/logo-ico-64x64.ico') }}">
+        {% block styles %}{% endblock %}
+    </head>
+    <body>
+        {% block body %}{% endblock %}
+        {% block javascripts %}{% endblock %}
+    </body>
+</html>

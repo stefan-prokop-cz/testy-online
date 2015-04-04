@@ -1,0 +1,13 @@
+{% block body %}
+<h1>Registrační údaje:</h1>
+<h3><i>Milá paní učitelko / pane učiteli, byl/a jste registrován do systému Testy online pod těmito údaji:</i></h3>
+
+<h4><b>Jméno a příjmení: </b>{{name | capitalize}} {{surname | capitalize}}</h4>
+<h4><b>Za školu: </b>{{school | capitalize}}</h4>
+<h4><b>Pod emailem: </b>{{email | capitalize}}</h4>
+<h4><b>Uživatelské jméno: </b>{{username}}</h4>
+<h4><b>Heslo: </b>{{password}}</h4> - heslo bylo vytvořeno administrátorem, ihned po přihlášení si jej prosím <b>změňte v nastavení</b>
+
+V přihlášení pokračujte <a href="http://www.testy.stpr.cz">ZDE</a>
+<i>Tento email byl vygenerován automaticky prosím neodpovídejte na něj. V případě problémů kontaktujte školního administrátora.</i>
+{% endblock %}
